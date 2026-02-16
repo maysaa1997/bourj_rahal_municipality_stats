@@ -1,0 +1,8 @@
+Flask==3.0.3
+pandas==2.2.2
+python-dotenv==1.0.1
+openai==1.40.6
+duckdb==1.0.0
+sqlparse==0.5.1
+openpyxl==3.1.5
+gunicorn==22.0.0
