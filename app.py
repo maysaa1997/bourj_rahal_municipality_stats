@@ -77,10 +77,10 @@ def prepare_stats(df):
     stats["خدمة_انترنت"] = df.groupby("خدمة انترنت").size().to_dict()
     stats["خدمة_تلفون_أرضي"] = df.groupby("خدمة تلفون أرضي").size().to_dict()
     stats["الصرف_الصحي"] = (
-        df.explode("الصرف_الصحي")
-        .dropna(subset=["الصرف_الصحي"])
-        .loc[lambda x: x["الصرف_الصحي"] != ""]
-        .groupby("الصرف_الصحي")
+        df.explode("الصرف الصحي")
+        .dropna(subset=["الصرف الصحي"])
+        .loc[lambda x: x["الصرف الصحي"] != ""]
+        .groupby("الصرف الصحي")
         .size()
         .to_dict()
     )
