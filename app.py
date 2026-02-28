@@ -87,10 +87,10 @@ def prepare_stats(df):
     stats["جمع_النفايات"] = df.groupby(
         "هل تقوم البلدية بجمع النفايات؟").size().to_dict()
     stats["مصدر_المياه"] = (
-        df.explode("مصدر_المياه")
-        .dropna(subset=["مصدر_المياه"])
-        .loc[lambda x: x["مصدر_المياه"] != ""]
-        .groupby("مصدر_المياه")
+        df.explode("مصدر المياه")
+        .dropna(subset=["مصدر المياه"])
+        .loc[lambda x: x["مصدر المياه"] != ""]
+        .groupby("مصدر المياه")
         .size()
         .to_dict()
     )
