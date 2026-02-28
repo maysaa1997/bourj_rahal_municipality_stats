@@ -54,7 +54,9 @@ def load_data():
     family_rows = []
     for hh in households_json:
         hh_id = hh["household_id"]
-        for member in hh.get("family_members", []):
+        # <-- convert None to empty list
+        members = hh.get("family_members") or []
+        for member in members:
             member_row = member.copy()
             member_row["household_id"] = hh_id
             family_rows.append(member_row)
@@ -64,7 +66,8 @@ def load_data():
     expat_rows = []
     for hh in households_json:
         hh_id = hh["household_id"]
-        for expat in hh.get("expatriates", []):
+        expats = hh.get("expatriates") or []  # <-- convert None to empty list
+        for expat in expats:
             expat_row = expat.copy()
             expat_row["household_id"] = hh_id
             expat_rows.append(expat_row)
