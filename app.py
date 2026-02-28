@@ -53,7 +53,8 @@ def load_data():
 df = load_data()
 
 
-# Create an in-memory DuckDB connection and register the dataframe as a SQL table
+# Create an in-memory DuckDB connection
+# and register the dataframe as a SQL table
 con = duckdb.connect(database=":memory:")
 con.register("households", df)  # SQL table name will be: households
 
@@ -62,22 +63,6 @@ con.register("households", df)  # SQL table name will be: households
 
 def prepare_stats(df):
     stats = {}
-
-    numeric_cols = [
-        "عدد أجهزة التكييف",
-        "عدد أفراد الأسرة",
-        "عدد الإناث",
-        "عدد الذكور",
-        "عدد السيارات",
-        "عدد الغرف",
-        "عدد خزانات المياه الأرضية",
-        "عدد خزانات المياه السطحية",
-        "عدد كمبيوتر"
-    ]
-
-    # Numeric description
-
-    total = len(df)
 
     # GroupBy "الحي"
     stats["per_neighborhood"] = df.groupby("الحي").size().to_dict()
@@ -91,11 +76,32 @@ def prepare_stats(df):
     # Services
     stats["خدمة_انترنت"] = df.groupby("خدمة انترنت").size().to_dict()
     stats["خدمة_تلفون_أرضي"] = df.groupby("خدمة تلفون أرضي").size().to_dict()
-    stats["الصرف_الصحي"] = df.groupby("الصرف الصحي").size().to_dict()
+    stats["الصرف_الصحي"] = (
+        df.explode("الصرف_الصحي")
+        .dropna(subset=["الصرف_الصحي"])
+        .loc[lambda x: x["الصرف_الصحي"] != ""]
+        .groupby("الصرف_الصحي")
+        .size()
+        .to_dict()
+    )
     stats["جمع_النفايات"] = df.groupby(
         "هل تقوم البلدية بجمع النفايات؟").size().to_dict()
-    stats["مصدر_المياه"] = df.groupby("مصدر المياه").size().to_dict()
-    stats["مصدر_كهرباء"] = df.groupby("مصدر كهرباء").size().to_dict()
+    stats["مصدر_المياه"] = (
+        df.explode("مصدر_المياه")
+        .dropna(subset=["مصدر_المياه"])
+        .loc[lambda x: x["مصدر_المياه"] != ""]
+        .groupby("مصدر_المياه")
+        .size()
+        .to_dict()
+    )
+    stats["مصدر_كهرباء"] = (
+        df.explode("مصدر كهرباء")
+        .dropna(subset=["مصدر كهرباء"])
+        .loc[lambda x: x["مصدر كهرباء"] != ""]
+        .groupby("مصدر كهرباء")
+        .size()
+        .to_dict()
+    )
     stats["مصدر_مياه_اخر"] = df.groupby(
         "ما هو مصدر المياه الاخر").size().to_dict()
     stats["الدخل_الشهري"] = df.groupby("الدخل الشهري").size().to_dict()
@@ -122,7 +128,8 @@ def store_result_df(result_df: pd.DataFrame) -> str:
 def df_schema_text(df: pd.DataFrame) -> str:
     """
     Build a compact schema description for the model.
-    Note: your columns are Arabic and some contain spaces; SQL must quote them with double-quotes.
+    Note: your columns are Arabic and some contain spaces;
+    SQL must quote them with double-quotes.
     """
     lines = []
     for col, dtype in df.dtypes.items():
@@ -141,7 +148,7 @@ Rules:
 - Must be a single SELECT query.
 - Query the table named: households
 - Do NOT use INSERT/UPDATE/DELETE/CREATE/DROP/ATTACH/COPY/PRAGMA.
-- If you need a column with spaces or Arabic, wrap it in double quotes, e.g. "خدمة انترنت".
+- If you need a column with spaces or Arabic, wrap it in double quotes.
 - Prefer COUNT(*), AVG(), SUM(), GROUP BY, ORDER BY.
 - If returning many rows, add LIMIT 50.
 
@@ -155,7 +162,8 @@ User question (Arabic possible):
     resp = client.chat.completions.create(
         model="gpt-4.1-mini",
         messages=[
-            {"role": "system", "content": "You are a strict SQL generator for DuckDB."},
+            {"role": "system", "content": "You are a strict SQL "
+             "generator for DuckDB."},
             {"role": "user", "content": prompt}
         ],
         temperature=0
@@ -227,7 +235,8 @@ def download_xlsx(result_id):
         output,
         as_attachment=True,
         download_name=f"query_result_{result_id}.xlsx",
-        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        mimetype="application/vnd.openxmlformats-officedocument"
+        ".spreadsheetml.sheet"
     )
 
 
@@ -248,7 +257,8 @@ def ask():
 
         if not is_safe_select(sql):
             return jsonify({
-                "answer": "I couldn't generate a safe SQL query for that question. Please rephrase.",
+                "answer": "I couldn't generate a safe SQL query for that "
+                "question. Please rephrase.",
                 "sql": sql
             }), 400
 
