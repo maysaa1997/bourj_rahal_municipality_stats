@@ -1,316 +1,394 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 
 <head>
     <meta charset="UTF-8">
-    <title>Bourj Rahal Households Dashboard</title>
+    <title>لوحة بيانات بلدية برج رحال</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
+    <!-- Bootstrap 5 RTL -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-
     <!-- Plotly JS -->
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f0f4f8;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        /* Sidebar */
-        #sidebar {
-            min-height: 100vh;
-            background: linear-gradient(180deg, #0d6efd, #6610f2);
-            color: #fff;
-            padding: 20px 0;
-            position: fixed;
-            width: 220px;
-            transition: all 0.3s;
-        }
-
-        #sidebar h2 {
-            text-align: center;
-            margin-bottom: 2rem;
-            font-weight: 700;
-        }
-
-        #sidebar a {
-            color: #fff;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 20px;
-            margin: 5px 0;
-            border-radius: 8px;
-            transition: all 0.3s;
-        }
-
-        #sidebar a:hover {
-            background-color: rgba(255, 255, 255, 0.25);
-            transform: translateX(5px);
-        }
-
-        .answerItem.ai pre {
-            margin: 0;
-            white-space: pre-wrap;
-            /* wraps long lines */
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-            font-size: 0.95rem;
-        }
-
-        /* Main Content */
-        #main-content {
-            margin-left: 240px;
-            padding: 30px;
-        }
-
-        /* Top Header */
-        header {
-            background-color: #fff;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            text-align: center;
-        }
-
-        header h1 {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-
-        header p {
-            font-size: 1rem;
-            color: #555;
-        }
-
-        header .badges span {
-            font-size: 0.9rem;
-        }
-
-        /* Cards */
-        .card {
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            background: linear-gradient(135deg, #f0f4ff, #ffffff);
-            transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s, color 0.3s;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        .card-title {
-            font-weight: 600;
-        }
-
-        .card-text {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #0d6efd;
-        }
-
-        /* Charts */
-        .chart-container {
-            width: 100%;
-            min-height: 350px;
-            max-height: 500px;
-        }
-
-        /* OpenAI chat */
-        #answerHistory {
-            max-height: 300px;
-            overflow-y: auto;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .answerItem.user {
-            background-color: #0d6efd;
-            color: white;
-            align-self: flex-end;
-            border-radius: 15px 15px 0 15px;
-            padding: 10px;
-            max-width: 80%;
-        }
-
-        .answerItem.ai {
-            background-color: #e9f0ff;
-            align-self: flex-start;
-            border-radius: 15px 15px 15px 0;
-            padding: 10px;
-            max-width: 80%;
-        }
-
-        /* Settings card */
-        #settings .card {
-            background: linear-gradient(135deg, #f9f9f9, #ffffff);
-        }
-
-        /* Dark Mode Styles */
-        body.dark-mode {
-            background-color: #1e1e2f;
-            color: #f0f4f8;
-        }
-
-        body.dark-mode header {
-            background-color: #2c2c3c;
-            color: #f0f4f8;
-        }
-
-        body.dark-mode .card {
-            background: #2a2a3c;
-            color: #f0f4f8;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-        }
-
-        body.dark-mode #sidebar {
-            background: linear-gradient(180deg, #343a40, #6610f2);
-        }
-
-        body.dark-mode #answerHistory .answerItem.ai {
-            background-color: #44445c;
-            color: #f0f4f8;
-        }
-
-        body.dark-mode #answerHistory .answerItem.user {
-            background-color: #6610f2;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 992px) {
-            #sidebar {
-                position: relative;
-                width: 100%;
-                min-height: auto;
-            }
-
-            #main-content {
-                margin-left: 0;
-                padding: 20px;
-            }
-        }
-    </style>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <!-- Google Fonts - Tajawal (Arabic) -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 
 <body>
 
-    <div class="d-flex">
+    <div>
 
         <!-- Sidebar -->
-        <div id="sidebar" class="flex-shrink-0">
-            <h2>Menu</h2>
-            <a href="#dashboard"><i class="bi bi-house"></i> Main Page</a>
-            <a href="#charts"><i class="bi bi-bar-chart"></i> Statistics</a>
-            <a href="#ask"><i class="bi bi-chat-dots"></i> اسأل البيانات</a>
-            <a href="#settings"><i class="bi bi-gear"></i> Settings</a>
+        <div id="sidebar">
+            <div class="sidebar-brand">
+                <img src="/static/logo.jpeg" alt="شعار البلدية" onerror="this.style.display='none'">
+                <h2>بلدية برج رحال</h2>
+            </div>
+            <nav>
+                <a href="#" data-page="dashboard" class="active"><i class="bi bi-grid-1x2-fill"></i> الرئيسية</a>
+                <a href="#" data-page="stats"><i class="bi bi-bar-chart-fill"></i> الإحصائيات</a>
+                <a href="#" data-page="chat"><i class="bi bi-chat-dots-fill"></i> اسأل البيانات</a>
+                <a href="#" data-page="settings"><i class="bi bi-gear-fill"></i> الإعدادات</a>
+            </nav>
         </div>
 
         <!-- Main Content -->
-        <div id="main-content" class="flex-grow-1">
+        <div id="main-content">
 
-            <!-- Top Header -->
-            <header>
-                <div class="d-flex justify-content-center align-items-center mb-2">
-                    <!-- Optional logo -->
-                    <img src="/static/logo.jpeg" alt="Logo" height="150" class="me-3">
-                    <div>
-                        <h1>Bourj Rahal Households Dashboard</h1>
-                        <p>This dashboard is provided by <strong>Bourj Rahal Municipality</strong></p>
+            <!-- Header -->
+            <div class="dashboard-header">
+                <div class="title-section">
+                    <h1>لوحة بيانات بلدية برج رحال</h1>
+                    <p>نظام إحصائيات الأسر والسكان</p>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px">
+                    <a href="/download/dataset.xlsx" class="header-badge"
+                        style="text-decoration:none;background:#d1fae5;color:#059669">
+                        <i class="bi bi-file-earmark-excel-fill"></i>
+                        تحميل البيانات الكاملة
+                    </a>
+                    <div class="header-badge">
+                        <i class="bi bi-clock"></i>
+                        <span id="currentTime"></span>
                     </div>
                 </div>
-                <div class="badges mt-2 d-flex justify-content-center gap-2 flex-wrap">
-                    <span class="badge bg-info text-dark">Updated: <span id="currentTime"></span></span>
-                </div>
-            </header>
+            </div>
 
-            <!-- Dashboard Cards -->
-            <section id="dashboard">
-                <div class="row g-4 mb-4">
-                    {% for key, value in stats.items() %}
-                    {% if value is number %}
-                    <div class="col-md-3 mb-3">
-                        <div class="card text-center p-3">
-                            <h5 class="card-title">
-                                <i class="bi bi-bar-chart"></i> {{ key.replace('_',' ') }}
-                            </h5>
-                            <p class="card-text">{{ value }}</p>
+            <!-- ==================== DASHBOARD PAGE ==================== -->
+            <div class="page-section active" id="page-dashboard">
+
+                <!-- KPI Cards -->
+                <div class="kpi-grid">
+                    <div class="kpi-card green">
+                        <div class="kpi-icon"><i class="bi bi-globe2"></i></div>
+                        <div class="kpi-value">{{ summary.إجمالي_السكان }}</div>
+                        <div class="kpi-label">إجمالي السكان</div>
+                    </div>
+                    <div class="kpi-card blue">
+                        <div class="kpi-icon"><i class="bi bi-houses-fill"></i></div>
+                        <div class="kpi-value">{{ summary.إجمالي_الأسر }}</div>
+                        <div class="kpi-label">إجمالي الأسر</div>
+                    </div>
+                    <div class="kpi-card green">
+                        <div class="kpi-icon"><i class="bi bi-people-fill"></i></div>
+                        <div class="kpi-value">{{ summary.إجمالي_أفراد_الأسر }}</div>
+                        <div class="kpi-label">أفراد الأسر</div>
+                    </div>
+                    <div class="kpi-card orange">
+                        <div class="kpi-icon"><i class="bi bi-heart-fill"></i></div>
+                        <div class="kpi-value">{{ summary.عدد_الأزواج }}</div>
+                        <div class="kpi-label">الأزواج</div>
+                    </div>
+                    <div class="kpi-card purple">
+                        <div class="kpi-icon"><i class="bi bi-airplane-fill"></i></div>
+                        <div class="kpi-value">{{ summary.إجمالي_المغتربين }}</div>
+                        <div class="kpi-label">المغتربون</div>
+                    </div>
+                    <div class="kpi-card red">
+                        <div class="kpi-icon"><i class="bi bi-person-wheelchair"></i></div>
+                        <div class="kpi-value">{{ summary.ذوي_الاحتياجات_الخاصة }}</div>
+                        <div class="kpi-label">ذوي الاحتياجات الخاصة</div>
+                    </div>
+                    <div class="kpi-card orange">
+                        <div class="kpi-icon"><i class="bi bi-person-lines-fill"></i></div>
+                        <div class="kpi-value">{{ summary.متوسط_حجم_الأسرة }}</div>
+                        <div class="kpi-label">متوسط حجم الأسرة</div>
+                    </div>
+                    <div class="kpi-card cyan">
+                        <div class="kpi-icon"><i class="bi bi-geo-alt-fill"></i></div>
+                        <div class="kpi-value">{{ summary.عدد_الأحياء }}</div>
+                        <div class="kpi-label">عدد الأحياء</div>
+                    </div>
+                    <div class="kpi-card blue">
+                        <div class="kpi-icon"><i class="bi bi-wifi"></i></div>
+                        <div class="kpi-value">{{ summary.نسبة_الإنترنت }}<span class="kpi-suffix">%</span></div>
+                        <div class="kpi-label">نسبة الإنترنت</div>
+                    </div>
+                    <div class="kpi-card green">
+                        <div class="kpi-icon"><i class="bi bi-car-front-fill"></i></div>
+                        <div class="kpi-value">{{ summary.نسبة_ملكية_سيارة }}<span class="kpi-suffix">%</span></div>
+                        <div class="kpi-label">نسبة ملكية سيارة</div>
+                    </div>
+                    <div class="kpi-card red">
+                        <div class="kpi-icon"><i class="bi bi-house-check-fill"></i></div>
+                        <div class="kpi-value">{{ summary.نسبة_ملكية_السكن }}<span class="kpi-suffix">%</span></div>
+                        <div class="kpi-label">نسبة ملكية السكن</div>
+                    </div>
+                </div>
+
+                <!-- Quick Overview Charts -->
+                <div class="section-header">
+                    <i class="bi bi-graph-up"></i>
+                    <h2>نظرة عامة</h2>
+                </div>
+                <div class="chart-grid">
+                    <div class="chart-card">
+                        <h3>توزيع الأسر حسب الأحياء</h3>
+                        <div class="chart-container" id="overview-neighborhoods"></div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>مستويات الدخل الشهري</h3>
+                        <div class="chart-container" id="overview-income"></div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>ملكية السكن</h3>
+                        <div class="chart-container" id="overview-ownership"></div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>الوضع العائلي</h3>
+                        <div class="chart-container" id="overview-marital"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== STATISTICS PAGE ==================== -->
+            <div class="page-section" id="page-stats">
+
+                <!-- Filters -->
+                <div class="filter-bar">
+                    <label><i class="bi bi-funnel-fill"></i> تصفية:</label>
+                    <select id="filterNeighborhood">
+                        <option value="">كل الأحياء</option>
+                        {% for n in filters.neighborhoods %}
+                        <option value="{{ n }}">{{ n }}</option>
+                        {% endfor %}
+                    </select>
+                    <select id="filterIncome">
+                        <option value="">كل مستويات الدخل</option>
+                        {% for i in filters.incomes %}
+                        <option value="{{ i }}">{{ i }}</option>
+                        {% endfor %}
+                    </select>
+                    <select id="filterOwnership">
+                        <option value="">كل أنواع الملكية</option>
+                        {% for o in filters.ownership %}
+                        <option value="{{ o }}">{{ o }}</option>
+                        {% endfor %}
+                    </select>
+                    <button class="btn-filter btn-apply" onclick="applyFilters()">تطبيق</button>
+                    <button class="btn-filter btn-reset" onclick="resetFilters()">إعادة تعيين</button>
+                </div>
+
+                <!-- Category Tabs -->
+                <div class="category-tabs">
+                    <button class="tab-btn active" data-cat="demographics">السكان والديموغرافيا</button>
+                    <button class="tab-btn" data-cat="housing">السكن</button>
+                    <button class="tab-btn" data-cat="infrastructure">البنية التحتية</button>
+                    <button class="tab-btn" data-cat="assets">الممتلكات</button>
+                    <button class="tab-btn" data-cat="income">الدخل</button>
+                    <button class="tab-btn" data-cat="family">الأسرة</button>
+                    <button class="tab-btn" data-cat="education">التعليم والعمل</button>
+                    <button class="tab-btn" data-cat="expatriates">المغتربون</button>
+                </div>
+
+                <!-- Demographics -->
+                <div class="category-section active" id="cat-demographics">
+                    <div class="chart-grid">
+                        <div class="chart-card full-width">
+                            <h3>مقارنة الذكور والإناث حسب الفئة</h3>
+                            <div class="chart-container" id="chart-مقارنة_الجنس"></div>
+                        </div>
+                        <div class="chart-card">
+                            <h3>إجمالي السكان حسب الجنس</h3>
+                            <div class="chart-container" id="chart-إجمالي_الجنس"></div>
+                        </div>
+                        <div class="chart-card">
+                            <h3>توزيع الأسر حسب الأحياء</h3>
+                            <div class="chart-container" id="chart-الأحياء"></div>
+                        </div>
+                        <div class="chart-card">
+                            <h3>الجنس (رب الأسرة)</h3>
+                            <div class="chart-container" id="chart-الجنس"></div>
+                        </div>
+                        <div class="chart-card">
+                            <h3>الوضع العائلي</h3>
+                            <div class="chart-container" id="chart-الوضع_العائلي"></div>
+                        </div>
+                        <div class="chart-card">
+                            <h3>فئة الدم</h3>
+                            <div class="chart-container" id="chart-فئة_الدم"></div>
+                        </div>
+                        <div class="chart-card full-width">
+                            <h3>الفئات العمرية (رب الأسرة)</h3>
+                            <div class="chart-container" id="chart-الفئة_العمرية"></div>
                         </div>
                     </div>
-                    {% endif %}
-                    {% endfor %}
                 </div>
-            </section>
 
-            <!-- Charts Tabs -->
-            <section id="charts">
-                <ul class="nav nav-tabs mb-3" id="chartTabs" role="tablist">
-                    {% for statName, statValue in stats.items() %}
-                    {% if statValue is mapping %}
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link {% if loop.first %}active{% endif %}" id="{{ statName }}-tab"
-                            data-bs-toggle="tab" data-bs-target="#{{ statName }}" type="button" role="tab">
-                            {{ statName.replace('_',' ') }}
+                <!-- Housing -->
+                <div class="category-section" id="cat-housing">
+                    <div class="chart-grid">
+                        <div class="chart-card">
+                            <h3>ملكية السكن</h3>
+                            <div class="chart-container" id="chart-ملكية_السكن"></div>
+                        </div>
+                        <div class="chart-card">
+                            <h3>نوع المسكن</h3>
+                            <div class="chart-container" id="chart-نوع_المسكن"></div>
+                        </div>
+                        <div class="chart-card full-width">
+                            <h3>توزيع عدد الغرف</h3>
+                            <div class="chart-container" id="chart-توزيع_الغرف"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Infrastructure -->
+                <div class="category-section" id="cat-infrastructure">
+                    <div class="chart-grid">
+                        <div class="chart-card">
+                            <h3>مصادر المياه</h3>
+                            <div class="chart-container" id="chart-مصدر_المياه"></div>
+                        </div>
+                        <div class="chart-card">
+                            <h3>مصادر الكهرباء</h3>
+                            <div class="chart-container" id="chart-مصدر_كهرباء"></div>
+                        </div>
+                        <div class="chart-card">
+                            <h3>الصرف الصحي</h3>
+                            <div class="chart-container" id="chart-الصرف_الصحي"></div>
+                        </div>
+                        <div class="chart-card">
+                            <h3>خدمة الإنترنت</h3>
+                            <div class="chart-container" id="chart-خدمة_انترنت"></div>
+                        </div>
+                        <div class="chart-card">
+                            <h3>خدمة التلفون الأرضي</h3>
+                            <div class="chart-container" id="chart-خدمة_تلفون_أرضي"></div>
+                        </div>
+                        <div class="chart-card">
+                            <h3>جمع النفايات</h3>
+                            <div class="chart-container" id="chart-جمع_النفايات"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Assets -->
+                <div class="category-section" id="cat-assets">
+                    <div class="chart-grid">
+                        <div class="chart-card">
+                            <h3>ملكية سيارة</h3>
+                            <div class="chart-container" id="chart-ملكية_سيارة"></div>
+                        </div>
+                        <div class="chart-card">
+                            <h3>ملكية كمبيوتر</h3>
+                            <div class="chart-container" id="chart-ملكية_كمبيوتر"></div>
+                        </div>
+                        <div class="chart-card">
+                            <h3>عاملة منزل</h3>
+                            <div class="chart-container" id="chart-عاملة_منزل"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Income -->
+                <div class="category-section" id="cat-income">
+                    <div class="chart-grid">
+                        <div class="chart-card full-width">
+                            <h3>توزيع الدخل الشهري</h3>
+                            <div class="chart-container" id="chart-الدخل_الشهري"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Family -->
+                <div class="category-section" id="cat-family">
+                    <div class="chart-grid">
+                        <div class="chart-card">
+                            <h3>المغتربون في الأسر</h3>
+                            <div class="chart-container" id="chart-المغتربون"></div>
+                        </div>
+                        <div class="chart-card">
+                            <h3>ذوي الاحتياجات الخاصة</h3>
+                            <div class="chart-container" id="chart-ذوي_الاحتياجات_الخاصة"></div>
+                        </div>
+                        <div class="chart-card full-width">
+                            <h3>ذوي الاحتياجات الخاصة حسب الحي</h3>
+                            <div class="chart-container" id="chart-ذوي_الاحتياجات_حسب_الحي"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Education & Employment -->
+                <div class="category-section" id="cat-education">
+                    <div class="chart-grid">
+                        <div class="chart-card">
+                            <h3>المستوى التعليمي (أفراد الأسر)</h3>
+                            <div class="chart-container" id="chart-التعليم"></div>
+                        </div>
+                        <div class="chart-card">
+                            <h3>أكثر المهن شيوعاً</h3>
+                            <div class="chart-container" id="chart-المهن"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Expatriates -->
+                <div class="category-section" id="cat-expatriates">
+                    <div class="chart-grid">
+                        <div class="chart-card">
+                            <h3>أماكن إقامة المغتربين</h3>
+                            <div class="chart-container" id="chart-مكان_الإقامة"></div>
+                        </div>
+                        <div class="chart-card">
+                            <h3>نوع الاغتراب (عمل / دراسة)</h3>
+                            <div class="chart-container" id="chart-نوع_الاغتراب"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== CHAT PAGE ==================== -->
+            <div class="page-section" id="page-chat">
+                <div class="chat-container">
+                    <div class="chat-header">
+                        <i class="bi bi-robot"></i>
+                        اسأل البيانات — مساعد بلدية برج رحال
+                    </div>
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="chat-msg ai">
+                            مرحباً! أنا مساعد بلدية برج رحال. يمكنك سؤالي عن أي إحصائيات تتعلق بالأسر والسكان. مثلاً:
+                            "كم عدد الأسر في حي الضيعة؟"
+                        </div>
+                    </div>
+                    <div class="suggested-questions">
+                        <button class="chip" onclick="askSuggested(this)">كم عدد الأسر في كل حي؟</button>
+                        <button class="chip" onclick="askSuggested(this)">ما هو متوسط عدد أفراد الأسرة؟</button>
+                        <button class="chip" onclick="askSuggested(this)">كم عدد المغتربين؟</button>
+                        <button class="chip" onclick="askSuggested(this)">ما هي المهن الأكثر شيوعاً؟</button>
+                        <button class="chip" onclick="askSuggested(this)">كم أسرة لديها إنترنت؟</button>
+                    </div>
+                    <div class="chat-input">
+                        <input type="text" id="chatInput" placeholder="اكتب سؤالك هنا..."
+                            onkeydown="if(event.key==='Enter')sendChat()">
+                        <button onclick="sendChat()" id="sendBtn">
+                            <i class="bi bi-send-fill"></i> إرسال
                         </button>
-                    </li>
-                    {% endif %}
-                    {% endfor %}
-                </ul>
-                <div class="tab-content">
-                    {% for statName, statValue in stats.items() %}
-                    {% if statValue is mapping %}
-                    <div class="tab-pane fade {% if loop.first %}show active{% endif %}" id="{{ statName }}">
-                        <div id="{{ statName }}Chart" class="chart-container"></div>
                     </div>
-                    {% endif %}
-                    {% endfor %}
                 </div>
-            </section>
+            </div>
 
-            <!-- OpenAI Query -->
-            <section id="ask" class="mt-4">
-                <div class="card p-3 mb-4">
-                    <h5 class="card-title">اسأل البيانات</h5>
-                    <div class="input-group mb-3">
-                        <input id="question" type="text" class="form-control"
-                            placeholder="مثال: كم عدد الأسر التي لديها إنترنت؟">
-                        <button class="btn btn-primary" onclick="ask()">اسأل</button>
-                    </div>
-                    <div id="answerHistory"></div>
+            <!-- ==================== SETTINGS PAGE ==================== -->
+            <div class="page-section" id="page-settings">
+                <div class="section-header">
+                    <i class="bi bi-gear-fill"></i>
+                    <h2>الإعدادات</h2>
                 </div>
-            </section>
-
-            <!-- Settings Section -->
-            <section id="settings" class="mt-4">
-                <div class="card p-3 mb-4">
-                    <h5 class="card-title"><i class="bi bi-gear"></i> Settings</h5>
-                    <div class="mb-3">
-                        <label for="themeSelect" class="form-label">Theme:</label>
-                        <select id="themeSelect" class="form-select">
-                            <option value="light" selected>Light</option>
-                            <option value="dark">Dark</option>
+                <div class="settings-card">
+                    <div class="form-group">
+                        <label>المظهر</label>
+                        <select id="themeSelect">
+                            <option value="light">فاتح</option>
+                            <option value="dark">داكن</option>
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label for="refreshInterval" class="form-label">Dashboard Refresh Interval (seconds):</label>
-                        <input type="number" id="refreshInterval" class="form-control" value="60">
-                    </div>
-                    <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+                    <button class="btn-save" onclick="saveSettings()">حفظ الإعدادات</button>
                 </div>
-            </section>
+            </div>
 
         </div>
     </div>
@@ -318,89 +396,410 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Data from backend (in separate tags so formatters don't break Jinja syntax) -->
+    <script id="stats-data" type="application/json">{{ stats | tojson | safe }}</script>
+    <script id="summary-data" type="application/json">{{ summary | tojson | safe }}</script>
+
     <script>
-        const statsData = {{ stats | tojson | safe }};
-        const colors = ['#0d6efd', '#198754', '#ffc107', '#6610f2', '#fd7e14', '#20c997', '#dc3545', '#6f42c1', '#0dcaf0', '#adb5bd'];
+        // ========================
+        // Data from backend
+        // ========================
+        let statsData = JSON.parse(document.getElementById('stats-data').textContent);
+        const summaryData = JSON.parse(document.getElementById('summary-data').textContent);
 
-        // Plot charts
-        let colorIndex = 0;
-        for (const [statName, statValue] of Object.entries(statsData)) {
-            if (statValue && typeof statValue === 'object') {
-                const color = colors[colorIndex % colors.length];
-                colorIndex += 1;
+        const plotlyLayout = {
+            font: { family: 'Tajawal, sans-serif', size: 13 },
+            margin: { t: 10, b: 35, l: 40, r: 10 },
+            paper_bgcolor: 'transparent',
+            plot_bgcolor: 'transparent',
+            xaxis: { automargin: true },
+            yaxis: { automargin: true },
+            autosize: true,
+            height: 260
+        };
 
-                Plotly.newPlot(statName + 'Chart', [{
-                    x: Object.keys(statValue),
-                    y: Object.values(statValue),
-                    type: 'bar',
-                    marker: { color: color }
-                }], {
-                    margin: { t: 30 },
-                    paper_bgcolor: '#f0f4f8',
-                    plot_bgcolor: '#f0f4f8'
+        const plotlyConfig = { responsive: true, displayModeBar: false };
+
+        const COLORS = [
+            '#2563eb', '#059669', '#d97706', '#7c3aed', '#dc2626',
+            '#0891b2', '#ea580c', '#4f46e5', '#0d9488', '#be185d',
+            '#65a30d', '#9333ea', '#0369a1', '#b91c1c', '#a16207'
+        ];
+
+        // ========================
+        // Chart rendering
+        // ========================
+        function renderBarChart(containerId, data, color) {
+            const el = document.getElementById(containerId);
+            if (!el || !data || Object.keys(data).length === 0) return;
+            Plotly.newPlot(el, [{
+                x: Object.keys(data),
+                y: Object.values(data),
+                type: 'bar',
+                marker: { color: color || COLORS[0], cornerradius: 4 },
+                textposition: 'outside',
+                text: Object.values(data).map(v => v.toString()),
+            }], { ...plotlyLayout }, plotlyConfig);
+        }
+
+        function renderHorizontalBar(containerId, data, color) {
+            const el = document.getElementById(containerId);
+            if (!el || !data || Object.keys(data).length === 0) return;
+            const sorted = Object.entries(data).sort((a, b) => a[1] - b[1]);
+            Plotly.newPlot(el, [{
+                y: sorted.map(e => e[0]),
+                x: sorted.map(e => e[1]),
+                type: 'bar',
+                orientation: 'h',
+                marker: { color: color || COLORS[1], cornerradius: 4 },
+                text: sorted.map(e => e[1].toString()),
+                textposition: 'outside',
+            }], { ...plotlyLayout, yaxis: { automargin: true, dtick: 1 } }, plotlyConfig);
+        }
+
+        function renderPieChart(containerId, data) {
+            const el = document.getElementById(containerId);
+            if (!el || !data || Object.keys(data).length === 0) return;
+            Plotly.newPlot(el, [{
+                labels: Object.keys(data),
+                values: Object.values(data),
+                type: 'pie',
+                hole: 0.45,
+                marker: { colors: COLORS },
+                textinfo: 'label+percent',
+                textfont: { family: 'Tajawal', size: 12 },
+            }], { ...plotlyLayout, showlegend: true, legend: { font: { family: 'Tajawal', size: 11 } } }, plotlyConfig);
+        }
+
+        function renderAllCharts(stats) {
+            // Overview (dashboard page)
+            renderBarChart('overview-neighborhoods', stats['الأحياء'], COLORS[0]);
+            renderBarChart('overview-income', stats['الدخل_الشهري'], COLORS[2]);
+            renderPieChart('overview-ownership', stats['ملكية_السكن']);
+            renderPieChart('overview-marital', stats['الوضع_العائلي']);
+
+            // Demographics
+            renderBarChart('chart-الأحياء', stats['الأحياء'], COLORS[0]);
+            renderPieChart('chart-الجنس', stats['الجنس']);
+            renderPieChart('chart-الوضع_العائلي', stats['الوضع_العائلي']);
+            renderPieChart('chart-فئة_الدم', stats['فئة_الدم']);
+            renderBarChart('chart-الفئة_العمرية', stats['الفئة_العمرية'], COLORS[4]);
+
+            // Gender comparison
+            if (stats['مقارنة_الجنس']) {
+                const gc = stats['مقارنة_الجنس'];
+                // Grouped bar chart
+                const categories = [];
+                const maleVals = [];
+                const femaleVals = [];
+                const labelMap = { 'أرباب_الأسر': 'أرباب الأسر', 'الأزواج': 'الأزواج', 'أفراد_الأسر': 'أفراد الأسر', 'المغتربون': 'المغتربون', 'الإجمالي': 'الإجمالي' };
+                for (const [key, vals] of Object.entries(gc)) {
+                    categories.push(labelMap[key] || key);
+                    maleVals.push(vals['ذكور'] || 0);
+                    femaleVals.push(vals['إناث'] || 0);
+                }
+                const el = document.getElementById('chart-مقارنة_الجنس');
+                if (el) {
+                    Plotly.newPlot(el, [
+                        { x: categories, y: maleVals, name: 'ذكور', type: 'bar', marker: { color: '#2563eb' } },
+                        { x: categories, y: femaleVals, name: 'إناث', type: 'bar', marker: { color: '#e11d48' } }
+                    ], { ...plotlyLayout, barmode: 'group', legend: { font: { family: 'Tajawal', size: 14 } } }, plotlyConfig);
+                }
+                // Total pie
+                const totalData = gc['الإجمالي'];
+                if (totalData) {
+                    renderPieChart('chart-إجمالي_الجنس', { 'ذكور': totalData['ذكور'], 'إناث': totalData['إناث'] });
+                }
+            }
+
+            // Housing
+            renderPieChart('chart-ملكية_السكن', stats['ملكية_السكن']);
+            renderPieChart('chart-نوع_المسكن', stats['نوع_المسكن']);
+            renderBarChart('chart-توزيع_الغرف', stats['توزيع_الغرف'], COLORS[3]);
+
+            // Infrastructure
+            renderHorizontalBar('chart-مصدر_المياه', stats['مصدر_المياه'], COLORS[5]);
+            renderHorizontalBar('chart-مصدر_كهرباء', stats['مصدر_كهرباء'], COLORS[2]);
+            renderHorizontalBar('chart-الصرف_الصحي', stats['الصرف_الصحي'], COLORS[1]);
+            renderPieChart('chart-خدمة_انترنت', stats['خدمة_انترنت']);
+            renderPieChart('chart-خدمة_تلفون_أرضي', stats['خدمة_تلفون_أرضي']);
+            renderPieChart('chart-جمع_النفايات', stats['جمع_النفايات']);
+
+            // Assets
+            renderPieChart('chart-ملكية_سيارة', stats['ملكية_سيارة']);
+            renderPieChart('chart-ملكية_كمبيوتر', stats['ملكية_كمبيوتر']);
+            renderPieChart('chart-عاملة_منزل', stats['عاملة_منزل']);
+
+            // Income
+            renderBarChart('chart-الدخل_الشهري', stats['الدخل_الشهري'], COLORS[2]);
+
+            // Family
+            renderPieChart('chart-المغتربون', stats['المغتربون']);
+            renderPieChart('chart-ذوي_الاحتياجات_الخاصة', stats['ذوي_الاحتياجات_الخاصة']);
+            renderBarChart('chart-ذوي_الاحتياجات_حسب_الحي', stats['ذوي_الاحتياجات_حسب_الحي'], COLORS[4]);
+
+            // Education & Employment
+            renderHorizontalBar('chart-التعليم', stats['التعليم'], COLORS[3]);
+            renderHorizontalBar('chart-المهن', stats['المهن'], COLORS[6]);
+
+            // Expatriates
+            renderBarChart('chart-مكان_الإقامة', stats['مكان_الإقامة'], COLORS[4]);
+            renderPieChart('chart-نوع_الاغتراب', stats['نوع_الاغتراب']);
+        }
+
+        renderAllCharts(statsData);
+
+        // ========================
+        // Page navigation
+        // ========================
+        document.querySelectorAll('#sidebar nav a').forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                const page = this.dataset.page;
+
+                // Update sidebar active
+                document.querySelectorAll('#sidebar nav a').forEach(a => a.classList.remove('active'));
+                this.classList.add('active');
+
+                // Show page
+                document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+                document.getElementById('page-' + page).classList.add('active');
+
+                // Re-render charts when switching to stats page (Plotly needs visible container)
+                if (page === 'stats' || page === 'dashboard') {
+                    setTimeout(() => {
+                        window.dispatchEvent(new Event('resize'));
+                    }, 100);
+                }
+            });
+        });
+
+        // ========================
+        // Category tabs
+        // ========================
+        document.querySelectorAll('.category-tabs .tab-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                document.querySelectorAll('.category-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                const cat = this.dataset.cat;
+                document.querySelectorAll('.category-section').forEach(s => s.classList.remove('active'));
+                document.getElementById('cat-' + cat).classList.add('active');
+                setTimeout(() => window.dispatchEvent(new Event('resize')), 100);
+            });
+        });
+
+        // ========================
+        // Filters
+        // ========================
+        async function applyFilters() {
+            const neighborhood = document.getElementById('filterNeighborhood').value;
+            const income = document.getElementById('filterIncome').value;
+            const ownership = document.getElementById('filterOwnership').value;
+
+            const params = new URLSearchParams();
+            if (neighborhood) params.set('neighborhood', neighborhood);
+            if (income) params.set('income', income);
+            if (ownership) params.set('ownership', ownership);
+
+            try {
+                const res = await fetch('/api/stats?' + params.toString());
+                const data = await res.json();
+                statsData = data.stats;
+                renderAllCharts(statsData);
+
+                // Update KPI cards if on dashboard
+                const s = data.summary;
+                const kpis = document.querySelectorAll('#page-dashboard .kpi-card');
+                const vals = [
+                    s['إجمالي_السكان'], s['إجمالي_الأسر'], s['إجمالي_أفراد_الأسر'],
+                    s['عدد_الأزواج'], s['إجمالي_المغتربين'], s['ذوي_الاحتياجات_الخاصة'],
+                    s['متوسط_حجم_الأسرة'], s['عدد_الأحياء'],
+                    s['نسبة_الإنترنت'] + '%', s['نسبة_ملكية_سيارة'] + '%', s['نسبة_ملكية_السكن'] + '%'
+                ];
+                kpis.forEach((card, i) => {
+                    if (vals[i] !== undefined) {
+                        const valEl = card.querySelector('.kpi-value');
+                        if (valEl) {
+                            const suffix = valEl.querySelector('.kpi-suffix');
+                            const raw = String(vals[i]);
+                            if (raw.endsWith('%')) {
+                                valEl.textContent = raw.replace('%', '');
+                                const sp = document.createElement('span');
+                                sp.className = 'kpi-suffix';
+                                sp.textContent = '%';
+                                valEl.appendChild(sp);
+                            } else {
+                                valEl.textContent = raw;
+                            }
+                        }
+                    }
                 });
+            } catch (err) {
+                console.error('Filter error:', err);
             }
         }
 
-        // OpenAI ask
-        async function ask() {
-            const q = document.getElementById("question").value;
+        function resetFilters() {
+            document.getElementById('filterNeighborhood').value = '';
+            document.getElementById('filterIncome').value = '';
+            document.getElementById('filterOwnership').value = '';
+            statsData = JSON.parse(document.getElementById('stats-data').textContent);
+            renderAllCharts(statsData);
+
+            // Reset KPIs
+            const summary = summaryData;
+            const kpis = document.querySelectorAll('#page-dashboard .kpi-card');
+            const vals = [
+                summary['إجمالي_السكان'], summary['إجمالي_الأسر'], summary['إجمالي_أفراد_الأسر'],
+                summary['عدد_الأزواج'], summary['إجمالي_المغتربين'], summary['ذوي_الاحتياجات_الخاصة'],
+                summary['متوسط_حجم_الأسرة'], summary['عدد_الأحياء'],
+                summary['نسبة_الإنترنت'] + '%', summary['نسبة_ملكية_سيارة'] + '%', summary['نسبة_ملكية_السكن'] + '%'
+            ];
+            kpis.forEach((card, i) => {
+                if (vals[i] !== undefined) {
+                    const valEl = card.querySelector('.kpi-value');
+                    if (valEl) {
+                        const raw = String(vals[i]);
+                        if (raw.endsWith('%')) {
+                            valEl.textContent = raw.replace('%', '');
+                            const sp = document.createElement('span');
+                            sp.className = 'kpi-suffix';
+                            sp.textContent = '%';
+                            valEl.appendChild(sp);
+                        } else {
+                            valEl.textContent = raw;
+                        }
+                    }
+                }
+            });
+        }
+
+        // ========================
+        // Chat
+        // ========================
+        async function sendChat() {
+            const input = document.getElementById('chatInput');
+            const q = input.value.trim();
             if (!q) return;
 
-            const res = await fetch("/ask", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ question: q })
-            });
+            const messagesDiv = document.getElementById('chatMessages');
+            const sendBtn = document.getElementById('sendBtn');
 
-            const data = await res.json();
+            // User message
+            const userMsg = document.createElement('div');
+            userMsg.className = 'chat-msg user';
+            userMsg.textContent = q;
+            messagesDiv.appendChild(userMsg);
+            input.value = '';
 
-            const historyDiv = document.getElementById('answerHistory');
+            // Loading indicator
+            const loading = document.createElement('div');
+            loading.className = 'chat-loading show';
+            loading.innerHTML = '<div class="dots"><span></span><span></span><span></span></div> <span>جارٍ البحث...</span>';
+            messagesDiv.appendChild(loading);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            sendBtn.disabled = true;
 
-            const userDiv = document.createElement('div');
-            userDiv.className = 'answerItem user';
-            userDiv.innerText = q;
-            historyDiv.appendChild(userDiv);
+            try {
+                const res = await fetch('/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question: q })
+                });
+                const data = await res.json();
 
-            const aiDiv = document.createElement('div');
-            aiDiv.className = 'answerItem ai';
+                loading.remove();
 
-            if (data.download_url) {
-                const link = document.createElement('a');
-                link.href = data.download_url;
-                link.className = "btn btn-sm btn-outline-primary mt-2";
-                link.innerText = "Download Excel";
-                aiDiv.appendChild(link);
+                const aiMsg = document.createElement('div');
+                aiMsg.className = 'chat-msg ai';
+
+                // Main answer
+                const answerText = document.createElement('div');
+                answerText.textContent = data.answer;
+                aiMsg.appendChild(answerText);
+
+                // Download button
+                if (data.download_url) {
+                    const dlBtn = document.createElement('a');
+                    dlBtn.href = data.download_url;
+                    dlBtn.className = 'download-btn';
+                    dlBtn.innerHTML = '<i class="bi bi-file-earmark-excel-fill"></i> تحميل Excel';
+                    aiMsg.appendChild(dlBtn);
+                }
+
+                // SQL toggle
+                if (data.sql) {
+                    const toggle = document.createElement('div');
+                    toggle.className = 'sql-toggle';
+                    toggle.innerHTML = '<i class="bi bi-code-slash"></i> عرض الاستعلام';
+                    const sqlContent = document.createElement('div');
+                    sqlContent.className = 'sql-content';
+                    const sqlPre = document.createElement('pre');
+                    sqlPre.textContent = data.sql;
+                    sqlContent.appendChild(sqlPre);
+                    toggle.onclick = () => sqlContent.classList.toggle('show');
+                    aiMsg.appendChild(toggle);
+                    aiMsg.appendChild(sqlContent);
+                }
+
+                messagesDiv.appendChild(aiMsg);
+            } catch (err) {
+                loading.remove();
+                const errMsg = document.createElement('div');
+                errMsg.className = 'chat-msg ai';
+                errMsg.textContent = 'حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى.';
+                messagesDiv.appendChild(errMsg);
             }
 
-            const pre = document.createElement('pre');
-            pre.textContent = data.answer;   // safe (no HTML injection)
-            aiDiv.appendChild(pre);
-
-            historyDiv.appendChild(aiDiv);
-
-            historyDiv.scrollTop = historyDiv.scrollHeight;
-            document.getElementById("question").value = '';
+            sendBtn.disabled = false;
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
 
-        // Save settings
+        function askSuggested(el) {
+            document.getElementById('chatInput').value = el.textContent;
+            sendChat();
+        }
+
+        // ========================
+        // Settings
+        // ========================
         function saveSettings() {
             const theme = document.getElementById('themeSelect').value;
-            const interval = document.getElementById('refreshInterval').value;
-
             if (theme === 'dark') {
                 document.body.classList.add('dark-mode');
             } else {
                 document.body.classList.remove('dark-mode');
             }
-
-            alert(`Settings saved!\nTheme: ${theme}\nRefresh: ${interval}s`);
+            localStorage.setItem('theme', theme);
+            // Re-render charts with new background
+            setTimeout(() => {
+                renderAllCharts(statsData);
+                window.dispatchEvent(new Event('resize'));
+            }, 200);
         }
 
-        // Update time
+        // Load saved theme
+        (function () {
+            const saved = localStorage.getItem('theme');
+            if (saved === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('themeSelect').value = 'dark';
+            }
+        })();
+
+        // ========================
+        // Clock
+        // ========================
         function updateTime() {
             const now = new Date();
-            document.getElementById('currentTime').innerText = now.toLocaleString('ar-LB', { hour12: false });
+            document.getElementById('currentTime').textContent = now.toLocaleString('ar-LB', {
+                hour12: false,
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
         }
         setInterval(updateTime, 1000);
         updateTime();
