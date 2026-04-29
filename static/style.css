@@ -129,6 +129,7 @@ body {
     width: calc(100% - var(--sidebar-width));
     height: 100vh;
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 /* ---- Header ---- */
@@ -371,6 +372,8 @@ body {
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
     margin-bottom: 32px;
+    max-width: 100%;
+    overflow: hidden;
 }
 
 .chart-card {
@@ -379,6 +382,8 @@ body {
     padding: 20px;
     box-shadow: var(--shadow);
     transition: var(--transition);
+    overflow: hidden;
+    min-width: 0;
 }
 
 .chart-card:hover {
@@ -395,6 +400,7 @@ body {
 .chart-card .chart-container {
     width: 100%;
     height: 280px;
+    overflow: hidden;
 }
 
 .chart-card.full-width {
@@ -868,4 +874,6 @@ body.dark-mode .chat-msg.ai pre {
 
 .page-section.active {
     display: block;
+    max-width: 100%;
+    overflow-x: hidden;
 }
