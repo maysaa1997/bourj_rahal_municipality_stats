@@ -1,9 +1,10 @@
 # app.py
 import os
 import logging
-from flask import Flask, render_template, request, jsonify, send_file
+from flask import Flask, render_template, request, jsonify, send_file, session, redirect, url_for
 import pandas as pd
 import numpy as np
+from functools import wraps
 from openai import OpenAI
 import duckdb
 import sqlparse
@@ -28,6 +29,41 @@ logger = logging.getLogger(__name__)
 # Flask app
 # -----------------------------
 app = Flask(__name__)
+app.secret_key = os.getenv("SECRET_KEY", os.urandom(24).hex())
+
+# Authentication credentials from env vars
+APP_USERNAME = os.getenv("APP_USERNAME", "dawoodezz")
+APP_PASSWORD = os.getenv("APP_PASSWORD", "baladeye1")
+
+
+def login_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not session.get("logged_in"):
+            return redirect(url_for("login"))
+        return f(*args, **kwargs)
+    return decorated
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    error = None
+    if request.method == "POST":
+        username = request.form.get("username", "")
+        password = request.form.get("password", "")
+        if username == APP_USERNAME and password == APP_PASSWORD:
+            session["logged_in"] = True
+            return redirect(url_for("index"))
+        error = "اسم المستخدم أو كلمة المرور غير صحيحة"
+    return render_template("login.html", error=error)
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("login"))
+
+
 QUERY_RESULTS = {}
 MAX_STORED_RESULTS = 2000
 
@@ -492,6 +528,7 @@ def run_sql_on_df(sql: str):
 
 
 @app.route("/download/<result_id>.xlsx", methods=["GET"])
+@login_required
 def download_xlsx(result_id):
     if result_id not in QUERY_RESULTS:
         return jsonify({"error": "النتيجة غير موجودة أو منتهية الصلاحية"}), 404
@@ -510,6 +547,7 @@ def download_xlsx(result_id):
 
 
 @app.route("/download/dataset.xlsx", methods=["GET"])
+@login_required
 def download_dataset():
     output = BytesIO()
     with pd.ExcelWriter(output, engine="openpyxl") as writer:
@@ -535,6 +573,7 @@ def download_dataset():
 
 
 @app.route("/")
+@login_required
 def index():
     stats = prepare_stats(df_households)
     summary = compute_summary(df_households)
@@ -545,6 +584,7 @@ def index():
 
 
 @app.route("/api/stats", methods=["GET"])
+@login_required
 def api_stats():
     df = df_households.copy()
     df_fam = df_family.copy() if not df_family.empty else df_family
@@ -587,6 +627,7 @@ def api_stats():
 
 
 @app.route("/api/summary", methods=["GET"])
+@login_required
 def api_summary():
     summary = compute_summary(df_households)
 
@@ -601,6 +642,7 @@ def api_summary():
 
 
 @app.route("/ask", methods=["POST"])
+@login_required
 def ask():
     question = request.json.get("question", "").strip()
     if not question:
